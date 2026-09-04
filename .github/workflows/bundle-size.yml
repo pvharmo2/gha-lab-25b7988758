@@ -1,0 +1,18 @@
+name: Bundle Size
+
+on: [pull_request]
+
+jobs:
+  build:
+    timeout-minutes: 20
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: preactjs/compressed-size-action@8518045ed95e94e971b83333085e1cb99aa18aa8 # v2
+        with:
+          build-script: 'build:app'
+          pattern: './build/**/*.{js,css,html,json}'
+          strip-hash: "\\b\\w{32}\\."
+          minimum-change-threshold: 200
+          compression: 'brotli'

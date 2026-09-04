@@ -1,0 +1,29 @@
+name: Docker Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    timeout-minutes: 20
+    runs-on: ubuntu-24.04
+    steps:
+      - name: SSH to server
+        uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_KEY }}
+          passphrase: ${{ secrets.VPS_PASSPHRASE }}
+          script: |
+            set -e
+            cd livecodes
+            git checkout main
+            git pull origin main
+            echo "${{ vars.VPS_ENV }}" > .env
+            docker compose build
+            docker compose up -d
+            docker container prune -f
+            docker image prune -a -f

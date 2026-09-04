@@ -1,0 +1,46 @@
+name: Deploy
+
+# on push to main deploy (as ubuntu-24.04 build) to github pages
+on:
+  push:
+    branches:
+      - main
+
+env:
+  NODE_VERSION: 24.x
+
+jobs:
+  deploy:
+    timeout-minutes: 20
+    runs-on: ubuntu-24.04
+    env:
+      NODE_OPTIONS: "--max_old_space_size=4096"
+    steps:
+      - name: Generate Github Token for CI Bot
+        uses: actions/create-github-app-token@d72941d797fd3113feb6b93fd0dec494b13a2547 # v1
+        id: generate-token
+        with:
+          app-id: ${{ secrets.CI_APP_ID }}
+          private-key: ${{ secrets.CI_APP_PRIVATE_KEY }}
+
+      - name: Checkout code
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          token: ${{ steps.generate-token.outputs.token }}
+
+      - name: Use Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: "**/package-lock.json"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Deploy
+        run: |
+          git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${{github.repository}}.git
+          npm run deploy -- -u "github-actions-bot <support+actions@github.com>"
+        env:
+          GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
