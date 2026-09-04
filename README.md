@@ -349,3 +349,4 @@ LiveCodes is free and open-source. The app does not contain ads or require subsc
 By sponsoring LiveCodes, you will be supporting the ongoing development and maintenance of the project, as well as helping to ensure that it remains a valuable resource for the developer community.
 
 Please consider [becoming a sponsor](https://livecodes.io/docs/sponsor).
+i18n ci exercise
